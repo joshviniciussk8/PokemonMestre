@@ -1,10 +1,10 @@
-# Backend Challenge - Pok�mons
+# Backend Challenge - Pokémons
 
-This is a project developed for a backend challenge by Coodesh. It focuses on providing an API that interacts with Pok�mon data.
+This is a project developed for a backend challenge by Coodesh. It focuses on providing an API that interacts with Pokémon data.
 
-## Descri��o
+## Descrição
 
-Este projeto foi desenvolvido como parte de um desafio t�cnico proposto pela Coodesh. Ele implementa uma API em .NET Core para fornecer informa��es sobre Pok�mons, al�m de opera��es como busca e filtragem.
+Este projeto foi desenvolvido como parte de um desafio técnico proposto pela Coodesh. Ele implementa uma API em .NET Core para fornecer informações sobre Pokémons, além de operações como busca e filtragem.
 
 ## Tecnologias
 
@@ -12,19 +12,19 @@ Este projeto foi desenvolvido como parte de um desafio t�cnico proposto pela C
 - Dapper
 - ASP.NET Core Identity
 - SQLite
-- Swagger para documenta��o da API
+- Swagger para documentação da API
 
-## Pr�-requisitos
+## Pré-requisitos
 
 - [.NET Core SDK](https://dotnet.microsoft.com/download)
-- Opcional: Docker para execu��o da aplica��o
+- Opcional: Docker para execução da aplicação
 
-## Instala��o
+## Instalação
 
-1. Clone o reposit�rio:
+1. Clone o repositório:
 
 ```bash
-git clone https://github.com/Pokemon.git
+git clone https://github.com/joshviniciussk8/PokemonMestre.git
 cd Coodesh-Pokemon
 ```
 3. o banco de Dados SQLite já vem no próprio projeto não sendo necessário configurações adicionais 
