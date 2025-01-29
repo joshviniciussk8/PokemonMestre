@@ -6,9 +6,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Pokemon.Models;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console() // Log no console
+    .WriteTo.File("logs/api-log.txt", rollingInterval: RollingInterval.Day) // Log em arquivo
+    .CreateLogger();
+builder.Host.UseSerilog();
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -22,6 +27,7 @@ builder.Services.AddSingleton<IDbConnection>(sp =>
     string connectionString = configuration.GetConnectionString("SQLiteConnection");
     return new SqliteConnection(connectionString);
 });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
