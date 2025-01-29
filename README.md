@@ -13,6 +13,7 @@ Este projeto foi desenvolvido como parte de um desafio técnico proposto pela Co
 - ASP.NET Core Identity
 - SQLite
 - Swagger para documentação da API
+- Ilogger Para armazenamentos de Logs em arquivos
 
 ## Pré-requisitos
 
