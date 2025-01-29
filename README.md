@@ -24,7 +24,7 @@ Este projeto foi desenvolvido como parte de um desafio técnico proposto pela Co
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com//joshviniciussk8/PokemonMestre.git
+git clone https://github.com/joshviniciussk8/PokemonMestre.git
 cd Coodesh-Pokemon
 ```
 3. o banco de Dados SQLite já vem no próprio projeto não sendo necessário configurações adicionais 
