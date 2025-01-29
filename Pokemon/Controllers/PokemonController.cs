@@ -54,7 +54,7 @@ namespace Pokemon.Controllers
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "Erro ao buscar Pokémon com ID: {Pokemon}", id);
+                _logger.LogError("Erro ao buscar Pokémon com ID: {Pokemon} Verifique o Erro: {ex}", id, ex);
                 return StatusCode(500, $"Erro ao conectar à API: {ex.Message}");
             }
         }
