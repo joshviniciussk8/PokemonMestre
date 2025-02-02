@@ -6,44 +6,42 @@ using Pokemon.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SQLite;
 
 namespace Pokemon.Repositories
 {
     public class PokemonCaptureRepository : IPokemonMasterRepository
     {
         private readonly IDbConnection _dbConnection;
-        public PokemonCaptureRepository(IDbConnection dbConnection)
+        private readonly ILogger<PokemonCaptureRepository> _logger;
+        public PokemonCaptureRepository(IDbConnection dbConnection, ILogger<PokemonCaptureRepository> logger)
         {
             _dbConnection = dbConnection;
+            _logger = logger;
         }
         public async Task<int> AddPokemonMaster(PokemonMasterRequest pokemonMaster)
         {
-            int response; 
             string sql = "INSERT INTO Mestre (Nome, Usuario, Senha) values (@Nome, @Usuario, @Senha); SELECT last_insert_rowid();";
             try
             {
-                _dbConnection.Open();
-                response = await _dbConnection.ExecuteScalarAsync<int>(sql, pokemonMaster);
-                _dbConnection.Close();
-                return response;
+                return await _dbConnection.ExecuteScalarAsync<int>(sql, pokemonMaster);                
             }
-            catch 
+            catch(Exception ex)
             {
+                _logger.LogError(ex, "Erro ao Adicionar Pokémon ao Mestre {Pokemon}", pokemonMaster);
                 return 0;
             }
         }
         public async Task<int> CapturePokemonRandom(PokemonCapture pokemonCapture)
         {
-            string sql = "INSERT INTO PokemonCapture (PokemonName, PokemonId, PokemonSprite, PokemonTypes, PokemonMasterId) values (@PokemonName, @PokemonId, @PokemonSprite, @PokemonTypes, @PokemonMasterId); SELECT last_insert_rowid();";
             try
             {
-                _dbConnection.Open();
-                 var response = await _dbConnection.ExecuteScalarAsync<int>(sql, pokemonCapture);
-                _dbConnection.Close();
-                return response;
+                string sql = "INSERT INTO PokemonCapture (PokemonName, PokemonId, PokemonSprite, PokemonTypes, PokemonMasterId) values (@PokemonName, @PokemonId, @PokemonSprite, @PokemonTypes, @PokemonMasterId); SELECT last_insert_rowid();";
+                return await _dbConnection.ExecuteScalarAsync<int>(sql, pokemonCapture);
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogError(ex, "Erro ao Capturar Pokémon {Pokemon}", pokemonCapture);
                 return 0;
             }
         }
@@ -51,15 +49,14 @@ namespace Pokemon.Repositories
         {
             try
             {
-                string sql = "Delete From Mestre Where Id  = @id";
-                _dbConnection.Open();
+                string sql = "Delete From Mestre Where Id  = @id";                
                 var parametros = new { id = MasterId };
-                await _dbConnection.ExecuteScalarAsync<PokemonMasterResponse>(sql, parametros);
-                _dbConnection.Close();
-                return true;
+                int rowsAffected = await _dbConnection.ExecuteAsync(sql, parametros);                
+                return rowsAffected>0;
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogError(ex, "Erro ao Deletar Mestre Pokémon ID {Id}",MasterId);
                 return false;
             }
         }
@@ -67,103 +64,84 @@ namespace Pokemon.Repositories
         {
             try
             {
-                _dbConnection.Open();
                 string sql = "update Mestre set Nome = @Nome, Usuario= @Usuario, Senha = @Senha where Id = @Id";
-                await _dbConnection.ExecuteAsync(sql, pokemonMasterRequest);
-                _dbConnection.Close();
-                return true;
+                int rowsAffected = await _dbConnection.ExecuteAsync(sql, pokemonMasterRequest);
+                return rowsAffected > 0;
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogError(ex, "Erro ao Editar Mestre Pokémon.");
                 return false;
             }
         }
-
         public async Task<IEnumerable<PokemonMasterResponse>> GetAllPokemonMasters()
         {
-            IEnumerable<PokemonMasterResponse>? pokemonMasterResponse = null;
             try
             {
-                _dbConnection.Open();
                 string sql = "SELECT * FROM Mestre;";
-                pokemonMasterResponse = await _dbConnection.QueryAsync<PokemonMasterResponse>(sql);
-                _dbConnection.Close();
-                return pokemonMasterResponse;
+                return await _dbConnection.QueryAsync<PokemonMasterResponse>(sql);         
             }
-            catch
+            catch(Exception ex) 
             {
-                return pokemonMasterResponse;
+                _logger.LogError(ex, "Erro ao buscar Mestres Pokémon");
+                return Enumerable.Empty<PokemonMasterResponse>();
             }
         }
-        public async Task<PokemonMasterResponse> GetPokemonMasterById(int id)
+        public async Task<PokemonMasterResponse?> GetPokemonMasterById(int id)
         {
-            PokemonMasterResponse? pokemonMasterResponse = null;
             try
             {
-                _dbConnection.Open();
                 string sql = "SELECT * FROM Mestre WHERE Id = @Id;";
                 var parametros = new { Id = id };
-                pokemonMasterResponse = await _dbConnection.QuerySingleOrDefaultAsync<PokemonMasterResponse>(sql, parametros);
-                _dbConnection.Close();
-                return pokemonMasterResponse;
-
+                return await _dbConnection.QuerySingleOrDefaultAsync<PokemonMasterResponse>(sql, parametros);
             }
-            catch
+            catch(Exception ex)
             {
-                return pokemonMasterResponse;
+                _logger.LogError(ex, "Erro ao buscar Mestres com o ID {Id}",id);
+                return null;
             }
         }
-        public async Task<PokemonMasterResponse> GetPokemonMasterByUser(string User)
+        public async Task<PokemonMasterResponse?> GetPokemonMasterByUser(string User)
         { 
-            PokemonMasterResponse? pokemonMasterResponse = null;
             try
             {
-                _dbConnection.Open();
                 string sql = "SELECT * FROM Mestre WHERE Usuario = @Usuario;";
                 var parametros = new { Usuario = User };
-                pokemonMasterResponse = await _dbConnection.QuerySingleOrDefaultAsync<PokemonMasterResponse>(sql, parametros);
-                _dbConnection.Close();
-                return pokemonMasterResponse;
-                
+                return await _dbConnection.QuerySingleOrDefaultAsync<PokemonMasterResponse>(sql, parametros);
             }
-            catch
+            catch(Exception ex)
             {
-                return pokemonMasterResponse;
+                _logger.LogError(ex, "Erro ao buscar Mestres com o Usuario {Us}", User);
+                return null;
             }
         }
         public async Task<IEnumerable<PokemonCapture>> ListCapturePokemon(int masterId)
         {
-            IEnumerable<PokemonCapture>? PokemonCaptures = null;
             try
             {
-                _dbConnection.Open();
                 string sql = "select * from PokemonCapture where PokemonMasterId = @MasterId;";
                 var parametros = new { MasterId = masterId };
-                PokemonCaptures = await _dbConnection.QueryAsync<PokemonCapture>(sql, parametros);
-                _dbConnection.Close();
-                return PokemonCaptures;
+                return await _dbConnection.QueryAsync<PokemonCapture>(sql, parametros);
+                
             }
-            catch
+            catch(Exception ex)
             {
-                return PokemonCaptures;
+                _logger.LogError(ex, "Erro ao ListarPokemons do Mestres com o ID {Id}", masterId);
+                return Enumerable.Empty<PokemonCapture>();
             }
         }
-        public async Task<PokemonMasterResponse> LoginMaster([FromBody]string user, string password)
+        public async Task<PokemonMasterResponse?> LoginMaster([FromBody]string user, string password)
         {
-            PokemonMasterResponse? pokemonMasterResponse = null;
             try
             {
-                _dbConnection.Open();
                 string sql = "SELECT * FROM Mestre WHERE Usuario = @Usuario and Senha = @Senha;";
                 var parametros = new { Usuario = user, Senha = password };
-                pokemonMasterResponse = await _dbConnection.QuerySingleOrDefaultAsync<PokemonMasterResponse>(sql, parametros);
-                _dbConnection.Close();
-                return pokemonMasterResponse;
-
+                return await _dbConnection.QuerySingleOrDefaultAsync<PokemonMasterResponse>(sql, parametros);                
             }
-            catch
+            catch(Exception ex)
             {
-                return pokemonMasterResponse;
+                _logger.LogError(ex, "Erro ao Logar Mestres com o Usuário {User}", user);
+                return null;
             }
         }
     }
